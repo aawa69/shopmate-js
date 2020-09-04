@@ -1,0 +1,39 @@
+{
+  "vars": {
+    "jest": "node_modules/jest/bin/jest.js"
+  },
+  "scripts": {
+    "test": "jest --runInBand",
+    "test1": "node --experimental-vm-modules $npm_package_vars_jest --runInBand",
+    "test:debug": "node --inspect $npm_package_vars_jest --runInBand",
+    "build": "babel src -d dist -watch"
+  },
+  "name": "js-basic-projects",
+  "type": "module",
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.4",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-proposal-private-methods": "^7.10.4",
+    "@babel/preset-env": "^7.11.0",
+    "babel-preset-latest": "^6.24.1",
+    "jest": "^26.4.2"
+  },
+  "jest": {
+    "verbose": true,
+    "timers": "fake",
+    "collectCoverage": true,
+    "coverageReporters": [
+      "lcov",
+      "text"
+    ],
+    "roots": [
+      "./tests/"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "tests/utils"
+    ]
+  },
+  "dependencies": {}
+}
