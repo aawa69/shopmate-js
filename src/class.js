@@ -44,6 +44,26 @@ export default function ToDo() {
     return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : text;
   };
 
+  // eslint-disable-next-line no-unused-vars
+  this.countUp = (e) => {
+    // TODO
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  this.countDown = (e) => {
+    // TODO
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  this.editItem = (e) => {
+    // TODO
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  this.deleteItem = (e) => {
+    // TODO
+  };
+
   // Show success userInfo
   this.successInfo = (sMsg) => {
     try {
@@ -93,26 +113,12 @@ export default function ToDo() {
   /* Output for existing item - update the count */
   this.outputExisting = (item) => {
     try {
-      const itemHTML = document.getElementById(item.item);
-      const htmlItemNo = itemHTML.getElementById(`${item.item}No`);
-      htmlItemNo.innerHTML = `(${item.count})`; // update count in DOM
+      document.getElementById(item.item).firstChild.innerHTML = ` ${item.count} `; // update count in DOM
 
       this.successInfo(`Item ${this.itemText(item.item)} has been incremented in your list`);
     } catch (e) {
       this.logError(e);
     }
-  };
-
-  this.editItem = (e) => {
-    // TODO
-    // eslint-disable-next-line no-console
-    console.log(e);
-  };
-
-  this.deleteItem = (e) => {
-    // TODO
-    // eslint-disable-next-line no-console
-    console.log(e);
   };
 
   /* Get the item text for output */
@@ -124,14 +130,14 @@ export default function ToDo() {
       <!-- item: start -->
       <article class="grocery-item">
         <div class="count-container">
-          <button id="count-up" class="count-up-btn" type="button">
+          <button id="${iItem.item}-count-up" class="count-up-btn" type="button">
             <i class="fa fa-plus"></i>
           </button>
-          <button id="count-down" class="count-down-btn" type="button">
+          <button id="${iItem.item}-count-down" class="count-down-btn" type="button">
             <i class="fa fa-minus"></i>
           </button>
         </div>
-        <p class="title" id="${iItem.item}">${text} <span id="${iItem.item}No">(${iItem.count})</span></p>
+        <p class="title" id="${iItem.item}"><span id="${iItem.item}No"> ${iItem.count} </span>${text}</p>
         <!-- edit / delete item buttons-->
         <div class="btn-container">
           <button id="${iItem.item}-edit" class="edit-btn" type="button">
@@ -144,8 +150,16 @@ export default function ToDo() {
       </article>
       <!-- item: end -->`;
 
-      document.getElementById(`${iItem.item}-edit`).addEventListener("click", this.editItem);
-      document.getElementById(`${iItem.item}-delete`).addEventListener("click", this.deleteItem);
+      const events = [
+        { event: "count-up", action: this.countUp },
+        { event: "count-down", action: this.countDown },
+        { event: "edit", action: this.editItem },
+        { event: "delete", action: this.deleteItem },
+      ];
+
+      events.forEach((ev) => {
+        document.getElementById(`${iItem.item}-${ev.event}`).addEventListener("click", ev.action());
+      });
     } catch (e) {
       this.logError(e);
     }
