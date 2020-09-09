@@ -138,19 +138,23 @@ export default function ToDo() {
       const existingItem = this.itemsArray?.length ? this.itemsArray.find((item) => item.item === iItem) : null;
       if (!existingItem) return false;
 
+      let actionMsg = "";
+
       switch (iAction) {
         case this.COUNT_UP:
           existingItem.count += 1;
+          actionMsg = "incremented";
           break;
         default:
           existingItem.count -= 1;
+          actionMsg = "decremented";
       }
 
       document.getElementById(`${existingItem.item}No`).innerHTML = ` ${existingItem.count} `; // update count in DOM
 
       this.updateLocalStorage();
 
-      this.successInfo(`Item ${this.itemText(existingItem.item)} has been incremented in your list`);
+      this.successInfo(`Item ${this.itemText(existingItem.item)} has been ${actionMsg} in your list`);
     } catch (e) {
       this.logError("outputExisting", e);
     }
@@ -162,44 +166,48 @@ export default function ToDo() {
     try {
       const text = this.itemText(iItem.item);
 
-      this.list.innerHTML += `  
-      <!-- item: start -->
-      <article class="grocery-item">
-        <div class="count-container">
-          <button id="${iItem.item}-count-up" class="count-up-btn" type="button">
-            <i class="fa fa-plus"></i>
-          </button>
-          <button id="${iItem.item}-count-down" class="count-down-btn" type="button">
-            <i class="fa fa-minus"></i>
-          </button>
-        </div>
-        <p class="title" id="${iItem.item}"><span id="${iItem.item}No"> ${iItem.count} </span>${text}</p>
-        <!-- edit / delete item buttons-->
-        <div class="btn-container">
-          <button id="${iItem.item}-edit" class="edit-btn" type="button">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button id="${iItem.item}-delete" class="delete-btn" type="button">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </article>
-      <!-- item: end -->`;
+      const elem = document.createElement("article");
+      const attr = document.createAttribute("data-id");
+
+      attr.value = `${iItem.item}-article`;
+      elem.setAttributeNode(attr);
+      elem.classList.add("grocery-item");
+
+      elem.innerHTML = `<div class="count-container">
+                          <button id="${iItem.item}-count-up" class="count-up-btn" type="button">
+                            <i class="fa fa-plus"></i>
+                          </button>
+                          <button id="${iItem.item}-count-down" class="count-down-btn" type="button">
+                            <i class="fa fa-minus"></i>
+                          </button>
+                        </div>
+                        <p class="title" id="${iItem.item}"><span id="${iItem.item}No"> ${iItem.count} </span>${text}</p>
+                        <!-- edit / delete item buttons-->
+                        <div class="btn-container">
+                          <button id="${iItem.item}-edit" class="edit-btn" type="button">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button id="${iItem.item}-delete" class="delete-btn" type="button">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>`;
 
       // set during testing - quit if false
-      if (!this.setItemEvents) return;
+      if (this.setItemEvents) {
+        const up = elem.querySelector(".count-up-btn");
+        up.addEventListener("click", this.countUp);
 
-      const events = [
-        { event: "count-up", action: this.countUp },
-        { event: "count-down", action: this.countDown },
-        { event: "edit", action: this.editItem },
-        { event: "delete", action: this.deleteItem },
-      ];
+        const down = elem.querySelector(".count-down-btn");
+        down.addEventListener("click", this.countDown);
 
-      events.forEach((ev) => {
-        const event = `${iItem.item}-${ev.event}`;
-        document.getElementById(event).addEventListener("click", ev.action);
-      });
+        const editBtn = elem.querySelector(".edit-btn");
+        editBtn.addEventListener("click", this.editItem);
+
+        const deleteBtn = elem.querySelector(".delete-btn");
+        deleteBtn.addEventListener("click", this.deleteItem);
+      }
+
+      this.list.appendChild(elem);
     } catch (e) {
       this.logError("outputGroceryItem", e);
     }
