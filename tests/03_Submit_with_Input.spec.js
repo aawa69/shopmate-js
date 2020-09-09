@@ -2,12 +2,13 @@
 /* eslint-env jest */
 /* eslint-disable no-debugger */
 import ToDo from "../src/class.js";
-import { formControl, container } from "./utils/setup.js";
+import { formControl, container, unloadEvents } from "./utils/setup.js";
 
 const setInputHTML = (iItems = "", iInput = "", iSetNull = false) => {
   document.body.innerHTML = formControl + container;
   const todo = new ToDo();
   todo.setInitial(iItems, iSetNull);
+  todo.setItemEvents = false;
   todo.setEventListeners();
   todo.setDisplay();
 
@@ -51,5 +52,6 @@ describe("--- TEST: SUBMISSION WITH INPUT ---", () => {
       expect(array.length).toEqual(1);
       expect(array).toEqual(expect.arrayContaining(expected));
     });
+    afterAll(() => unloadEvents(gc));
   });
 });

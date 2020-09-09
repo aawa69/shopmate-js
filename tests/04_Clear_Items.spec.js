@@ -5,13 +5,14 @@
 /* eslint-disable no-debugger */
 import ToDo from "../src/class.js";
 // eslint-disable-next-line no-unused-vars
-import { formControl, container, localStorageItems, localStorageMock } from "./utils/setup.js";
+import { formControl, container, unloadEvents } from "./utils/setup.js";
 
 const setListHTML = (iItems = "") => {
   document.body.innerHTML = formControl + container;
 
   const todo = new ToDo();
   todo.setInitial(iItems);
+  todo.setItemEvents = false;
   return todo;
 };
 
@@ -21,9 +22,9 @@ describe("--- TEST: CLEAR GROCERY LIST ---", () => {
   const gc = setListHTML(items);
 
   const clearBtn = document.getElementById("clear");
-  const testEvent = true;
-  // eslint-disable-next-line no-undef
-  clearBtn.addEventListener("click", gc.clearItems.bind(null, testEvent)); // optional event test via param
+  gc.eventTest = true;
+
+  clearBtn.addEventListener("click", gc.clearItems); // optional event test via param
 
   it("should execute the 'clear items' event and code ", () => {
     // document.querySelector(".clear-btn").removeEventListener("click", this.clearItems);
@@ -87,4 +88,5 @@ describe("--- TEST: CLEAR GROCERY LIST ---", () => {
     const text = gc.userInfo.textContent;
     expect(text).toEqual("All items removed from list");
   });
+  afterAll(() => unloadEvents(gc));
 });

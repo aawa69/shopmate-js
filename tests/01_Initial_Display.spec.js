@@ -1,12 +1,13 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-debugger */
 import ToDo from "../src/class.js";
-import { container } from "./utils/setup.js";
+import { container, unloadEvents } from "./utils/setup.js";
 
 const setItemHTML = (iItems) => {
   document.body.innerHTML = container;
   const todo = new ToDo();
   todo.setInitial(iItems);
+  todo.setItemEvents = false;
   todo.setDisplay();
 };
 
@@ -36,8 +37,11 @@ describe("--- TEST: INITIAL DISPLAY OF GROCERY ITEMS ---", () => {
 
     it("should have 2 items to display", () => {
       setItemHTML(items);
+
       const articles = document.getElementsByClassName("grocery-item");
       expect(articles.length).toEqual(2);
+
+      unloadEvents(gc);
     });
 
     it("should display item 'Eggs' with a count of 3", () => {

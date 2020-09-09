@@ -5,88 +5,57 @@
 /* eslint-disable no-debugger */
 import ToDo from "../src/class.js";
 // eslint-disable-next-line no-unused-vars
-import { formControl, container, localStorageItems, localStorageMock } from "./utils/setup.js";
+import { formControl, container, unloadEvents } from "./utils/setup.js";
 
 const setListHTML = (iItems = "") => {
   document.body.innerHTML = formControl + container;
 
   const todo = new ToDo();
   todo.setInitial(iItems);
+  todo.setItemEvents = false;
   return todo;
 };
 
+// eslint-disable-next-line quotes
+const items = '[{"item":"EGGS","count":3},{"item":"TOMATOES","count":1}]';
+const gc = setListHTML(items);
+
 describe("--- TEST: INCREMENT SHOPPING LIST ITEM ---", () => {
-  // eslint-disable-next-line quotes
-  const items = '[{"item":"EGGS","count":3},{"item":"TOMATOES","count":1}]';
-  // eslint-disable-next-line no-unused-vars
-  const gc = setListHTML(items);
-
-  // const clearBtn = document.getElementById("clear");
-  // const testEvent = true;
-  // eslint-disable-next-line no-undef
-  // clearBtn.addEventListener("click", gc.clearItems.bind(null, testEvent)); // optional event test via param
-
-  it("dummy", () => {
-    // document.querySelector(".clear-btn").removeEventListener("click", this.clearItems);
-    // clearBtn.click();
-    expect(1).toEqual(1);
-  });
-  /*
-  it("should check 2 items in DOM before removal", () => {
+  it("should check Tomatoes (DOM) has count of 1 before increment", () => {
     gc.setDisplay();
-    const articlesBefore = document.getElementsByClassName("grocery-item");
-    expect(articlesBefore.length).toEqual(2);
+    const { body } = document;
+    expect(body.innerHTML).not.toEqual("");
+
+    const numBefore = document.getElementById("TOMATOESNo").textContent.replace(/\s+/g, "");
+    expect(numBefore).toEqual("1");
   });
 
-  it("should check item array has 2 items before initializing", () => {
-    expect(gc.itemsArray.length).toEqual(2);
+  it("should check Tomatoes (array) has count 1 before increment", () => {
+    expect(gc.itemsArray[1].count).toEqual(1);
   });
 
-  it("should show DOM list container before items removed", () => {
-    const gcContainer = document.getElementById("container");
-    const showContainer = gcContainer.classList.contains("show-container");
-    expect(showContainer).toBeTruthy();
+  it("should execute the 'count-up' event for item Tomatoes ", () => {
+    const countUpBtn = document.getElementById("TOMATOES-count-up");
+    countUpBtn.addEventListener("click", gc.countUp);
+    gc.eventTest = true;
+
+    countUpBtn.click();
+    expect(gc.event).toEqual("TOMATOES-count-up");
   });
 
-  it("should check 0 items in DOM after removal", () => {
-    gc.removeAllChildNodes(gc.list);
-    const articlesAfter = document.getElementsByClassName("grocery-item");
-    expect(articlesAfter.length).toEqual(0);
+  it("should check Tomatoes (DOM) has count of 2 after increment", () => {
+    gc.updateExistingFromEvent("TOMATOES-count-up", gc.COUNT_UP);
+    const numAfter = document.getElementById("TOMATOESNo").textContent.replace(/\s+/g, "");
+    expect(numAfter).toEqual("2");
   });
 
-  it("should check item array has 0 items after initializing", () => {
-    gc.setGroceryItems(null);
-    expect(gc.itemsArray.length).toEqual(0);
+  it("should check Tomatoes (array) has count 2 after increment", () => {
+    expect(gc.itemsArray[1].count).toEqual(2);
   });
 
-  it("should hide DOM list container after items removed", () => {
-    gc.toggleContainer();
-    const gcContainer = document.getElementById("container");
-    const showContainer = gcContainer.classList.contains("show-container");
-    expect(showContainer).toBeFalsy();
-  });
-
-  // Object.defineProperty(window, "localStorage", {
-  //  value: localStorageMock,
-  // });
-
-  it("should check local storage has 2 elements before delete", () => {
-    localStorage.setItem("items", items);
-    gc.setGroceryItems(localStorage.getItem("items"));
-    const lsItems = gc.getGroceryItems();
-    expect(lsItems.length).toEqual(2);
-  });
-
-  it("should check local storage is deleted", () => {
-    gc.deleteLocalStorage("items");
-    const lsItems = localStorage.getItem("items") || null;
-    expect(lsItems).toBeNull();
-  });
-
-  it("should display message 'All items removed from list'", () => {
-    gc.successInfo("All items removed from list");
+  it("should display message 'Item Tomatoes has been incremented in your list'", () => {
     const text = gc.userInfo.textContent;
-    expect(text).toEqual("All items removed from list");
+    expect(text).toEqual("Item Tomatoes has been incremented in your list");
   });
-*/
+  afterAll(() => unloadEvents(gc));
 });
