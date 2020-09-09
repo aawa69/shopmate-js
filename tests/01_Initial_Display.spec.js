@@ -45,8 +45,10 @@ describe("--- TEST: INITIAL DISPLAY OF GROCERY ITEMS ---", () => {
     });
 
     it("should display item 'Eggs' with a count of 3", () => {
-      const paragraph = document.getElementById("EGGS");
-      expect(paragraph.textContent).toEqual(" 3 Eggs");
+      const text = document.getElementById("EGGS");
+      const num = document.getElementById("EGGSNo");
+      expect(num.textContent).toEqual("3");
+      expect(text.textContent).toEqual("Eggs");
     });
 
     it("'Eggs' item should have an edit and delete button", () => {
@@ -57,8 +59,10 @@ describe("--- TEST: INITIAL DISPLAY OF GROCERY ITEMS ---", () => {
     });
 
     it("should display 'Tomatoes' with a count of 1", () => {
-      const paragraph = document.getElementById("TOMATOES");
-      expect(paragraph.textContent).toEqual(" 1 Tomatoes");
+      const text = document.getElementById("TOMATOES");
+      const num = document.getElementById("TOMATOESNo");
+      expect(num.textContent).toEqual("1");
+      expect(text.textContent).toEqual("Tomatoes");
     });
 
     it("'Tomatoes' item should have an edit and delete button", () => {

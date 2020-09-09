@@ -21,13 +21,13 @@ const items = '[{"item":"EGGS","count":3},{"item":"TOMATOES","count":2},{"item":
 const gc = setListHTML(items);
 
 describe("--- TEST: EDIT SHOPPING LIST ITEM ---", () => {
-  it.only("should check item 2 rendered as 'Tomatoes' (DOM) before update", () => {
+  it.only("should render item 2 as 'Tomatoes' (DOM) before update", () => {
     gc.setDisplay();
     const { body } = document;
     expect(body.innerHTML).not.toEqual("");
 
     const textBefore = document.getElementById("TOMATOES").textContent;
-    expect(textBefore).toEqual(" 2 Tomatoes");
+    expect(textBefore).toEqual("Tomatoes");
   });
 
   it("should check Eggs (array) has count 1 before increment", () => {
