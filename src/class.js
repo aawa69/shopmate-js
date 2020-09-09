@@ -150,7 +150,7 @@ export default function ToDo() {
           actionMsg = "decremented";
       }
 
-      document.getElementById(`${existingItem.item}No`).innerHTML = ` ${existingItem.count} `; // update count in DOM
+      document.getElementById(`${existingItem.item}No`).innerHTML = `${existingItem.count}`; // update count in DOM
 
       this.updateLocalStorage();
 
@@ -164,7 +164,8 @@ export default function ToDo() {
   /* Get the item text for output */
   this.outputGroceryItem = (iItem) => {
     try {
-      const text = this.itemText(iItem.item);
+      const id = iItem.item;
+      const text = this.itemText(id);
 
       const elem = document.createElement("article");
       const attr = document.createAttribute("data-id");
@@ -173,24 +174,25 @@ export default function ToDo() {
       elem.setAttributeNode(attr);
       elem.classList.add("grocery-item");
 
-      elem.innerHTML = `<div class="count-container">
-                          <button id="${iItem.item}-count-up" class="count-up-btn" type="button">
-                            <i class="fa fa-plus"></i>
-                          </button>
-                          <button id="${iItem.item}-count-down" class="count-down-btn" type="button">
-                            <i class="fa fa-minus"></i>
-                          </button>
-                        </div>
-                        <p class="title" id="${iItem.item}"><span id="${iItem.item}No"> ${iItem.count} </span>${text}</p>
-                        <!-- edit / delete item buttons-->
-                        <div class="btn-container">
-                          <button id="${iItem.item}-edit" class="edit-btn" type="button">
-                            <i class="fas fa-edit"></i>
-                          </button>
-                          <button id="${iItem.item}-delete" class="delete-btn" type="button">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </div>`;
+      elem.innerHTML = `
+        <div class="count-container">
+          <button id="${id}-count-up" class="count-up-btn" type="button">
+            <i class="fa fa-plus"></i>
+          </button>
+          <button id="${id}-count-down" class="count-down-btn" type="button">
+            <i class="fa fa-minus"></i>
+          </button>
+        </div>
+        <p class="title"><span class="itemCount" id="${id}No">${iItem.count}</span><span id="${id}">${text}</span></p>
+        <!-- edit / delete item buttons-->
+        <div class="btn-container">
+          <button id="${id}-edit" class="edit-btn" type="button">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button id="${id}-delete" class="delete-btn" type="button">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>`;
 
       // set during testing - quit if false
       if (this.setItemEvents) {
