@@ -42,6 +42,9 @@ Variables
   --clr-red-light: hsl(360, 71%, 66%);
   --clr-green-dark: hsl(125, 67%, 44%);
   --clr-green-light: hsl(125, 71%, 66%);
+  --clr-orange-dark: hsl(39, 97%, 49%);
+  --clr-orange-light: hsl(39, 91%, 68%);
+  --clr-orange-border: hsl(39, 100%, 50%);
   --clr-black: #222;
   --ff-primary: "Roboto", sans-serif;
   --ff-secondary: "Open Sans", sans-serif;
@@ -284,13 +287,24 @@ Grocery List
 .grocery-item:hover .title {
   color: var(--clr-grey-5);
 }
-.title {
+.title,
+.input {
   margin-bottom: 0;
   color: var(--clr-grey-1);
   letter-spacing: 2px;
   transition: var(--transition);
 }
-
+.input {
+  width: 12rem;
+  white-space: nowrap;
+  color: var(--clr-orange-light);
+  border: 2px solid var(---clr-orange-border);
+  float: left;
+  overflow: hidden;
+  text-overflow: clip;
+  border-radius: 5px;
+  cursor: pointer;
+}
 .itemCount {
   float: left;
   width: 25px;
@@ -305,6 +319,7 @@ Grocery List
 }
 .edit-btn,
 .delete-btn,
+.save-btn,
 .count-up-btn,
 .count-down-btn {
   background: transparent;
@@ -314,12 +329,18 @@ Grocery List
   margin: 0 0.15rem;
   transition: var(--transition);
 }
+.edit-btn,
+.delete-btn,
+.save-btn {
+  width: 1rem;
+}
 .count-up-btn,
 .count-down-btn {
   font-size: 1rem;
 }
 .edit-btn {
   color: var(--clr-green-light);
+  visibility: visible;
 }
 .edit-btn:hover {
   color: var(--clr-green-dark);
@@ -329,6 +350,12 @@ Grocery List
 }
 .delete-btn:hover {
   color: var(--clr-red-dark);
+}
+.save-btn {
+  color: var(--clr-orange-light);
+}
+.save-btn:hover {
+  color: var(--clr-orange-dark);
 }
 .count-up-btn,
 .count-down-btn {
@@ -356,4 +383,7 @@ Grocery List
 }
 .clear-btn:hover {
   color: var(--clr-red-dark);
+}
+.hide-btn {
+  display: none;
 }

@@ -49,36 +49,42 @@ export default function ToDo() {
   };
 
   this.countUp = (e) => {
-    e.preventDefault();
-    this.event = e.currentTarget.id; // set event
-    if (this.eventTest) return; // exit when just a test
-
-    this.updateExistingFromEvent(e.currentTarget.id, this.COUNT_UP);
+    if (!this.eventTestOnly(e)) {
+      this.updateExistingFromEvent(e.currentTarget.id, this.COUNT_UP);
+    }
   };
 
   // eslint-disable-next-line no-unused-vars
   this.countDown = (e) => {
-    e.preventDefault();
-    this.event = e.currentTarget.id; // set event
-    if (this.eventTest) return; // exit when just a test
+    if (!this.eventTestOnly(e)) {
+      this.updateExistingFromEvent(e.currentTarget.id, this.COUNT_DOWN);
+    }
+  };
 
-    this.updateExistingFromEvent(e.currentTarget.id, this.COUNT_DOWN);
+  this.editItem = (e) => {
+    if (!this.eventTestOnly(e)) {
+      this.editExistingFromEvent(e.currentTarget.id);
+    }
   };
 
   // eslint-disable-next-line no-unused-vars
-  this.editItem = (e) => {
-    e.preventDefault();
-    this.event = e.currentTarget.id; // set event
-    // eslint-disable-next-line no-useless-return
-    if (this.eventTest) return; // exit when just a test
+  this.saveItem = (e) => {
+    if (!this.eventTestOnly(e)) {
+      this.replaceExistingFromEvent(e.currentTarget.id);
+    }
   };
 
   // eslint-disable-next-line no-unused-vars
   this.deleteItem = (e) => {
+    if (!this.eventTestOnly(e)) {
+      this.deleteItemFromEvent(e.currentTarget.id);
+    }
+  };
+
+  this.eventTestOnly = (e) => {
     e.preventDefault();
     this.event = e.currentTarget.id;
-    // eslint-disable-next-line no-useless-return
-    if (this.eventTest) return; // exit when just a test
+    return this.eventTest; // exit when just a test
   };
 
   // Show success userInfo
@@ -115,8 +121,43 @@ export default function ToDo() {
   };
 
   this.updateExistingFromEvent = (iSelectedItem, iAction) => {
-    const selectedItem = iSelectedItem.substr(0, iSelectedItem.indexOf("-"));
+    const selectedItem = this.getIdOfElement(iSelectedItem);
     this.outputExisting(selectedItem, iAction);
+  };
+
+  this.replaceExistingFromEvent = (iSelectedItem) => {
+    const selectedItem = this.getIdOfElement(iSelectedItem);
+    this.replaceExisting(selectedItem);
+  };
+
+  this.deleteItemFromEvent = (iSelectedItem) => {
+    const selectedItem = this.getIdOfElement(iSelectedItem);
+    this.removeExisting(selectedItem);
+  };
+
+  this.editExistingFromEvent = (iSelectedItem) => {
+    const selectedItem = this.getIdOfElement(iSelectedItem);
+
+    this.setEditable(selectedItem);
+    this.toggleEditSave(selectedItem);
+  };
+
+  this.setEditable = (item) => {
+    const element = document.getElementById(item);
+    element.contentEditable = true;
+    element.focus();
+    element.classList.add("input");
+  };
+
+  this.toggleEditSave = (item) => {
+    const editBtn = document.getElementById(`${item}-edit`);
+    const saveBtn = document.getElementById(`${item}-save`);
+    editBtn.classList.add("hide-btn");
+    saveBtn.classList.remove("hide-btn");
+  };
+
+  this.getIdOfElement = (iElement) => {
+    return iElement.substr(0, iElement.indexOf("-"));
   };
 
   // toggle display of the grocery list container
@@ -161,58 +202,137 @@ export default function ToDo() {
     return true;
   };
 
+  this.replaceExisting = (iItem) => {
+    try {
+      // retrieve the (existing) selected item detail from itemsArray
+      const existing = this.findListItem(iItem);
+
+      // this is an error
+      if (!existing) throw new Error(`Item ${iItem} not found in itemsArray`);
+
+      // get the new text
+      const replaceItem = document.getElementById(iItem) || null;
+
+      // nothing entered - userInfo and exit
+      if (!replaceItem) {
+        this.errorInfo("Please enter item text");
+        return;
+      }
+
+      const item = replaceItem.textContent.toUpperCase();
+
+      // create a new item and replace existing item with new one
+      const newArticle = this.createArticle(item, existing.count);
+      this.list.replaceChild(newArticle, this.list.childNodes[existing.index]);
+
+      // generate button events for new item
+      this.createArticleEvents(newArticle);
+
+      // update the array and local storage
+      this.itemsArray[existing.index] = { item, count: existing.count };
+      this.updateLocalStorage();
+
+      // message
+      this.successInfo(`Item ${this.itemText(item)} has been updated in your list`);
+    } catch (e) {
+      this.logError("replaceExisting", e);
+    }
+  };
+
+  this.removeExisting = (iItem) => {
+    try {
+      const existing = this.findListItem(iItem);
+
+      if (!existing) throw new Error(`Item ${iItem} not found in itemsArray`);
+
+      // remove from DOM, array & local storage
+      this.list.removeChild(this.list.childNodes[existing.index]);
+      this.itemsArray.splice(existing.index, 1);
+      this.updateLocalStorage();
+
+      // message
+      this.successInfo(`${this.itemText(existing.item)} has been removed from your list`);
+    } catch (e) {
+      this.logError("removeExisting", e);
+    }
+  };
+
   /* Get the item text for output */
   this.outputGroceryItem = (iItem) => {
     try {
-      const id = iItem.item;
-      const text = this.itemText(id);
-
-      const elem = document.createElement("article");
-      const attr = document.createAttribute("data-id");
-
-      attr.value = `${iItem.item}-article`;
-      elem.setAttributeNode(attr);
-      elem.classList.add("grocery-item");
-
-      elem.innerHTML = `
-        <div class="count-container">
-          <button id="${id}-count-up" class="count-up-btn" type="button">
-            <i class="fa fa-plus"></i>
-          </button>
-          <button id="${id}-count-down" class="count-down-btn" type="button">
-            <i class="fa fa-minus"></i>
-          </button>
-        </div>
-        <p class="title"><span class="itemCount" id="${id}No">${iItem.count}</span><span id="${id}">${text}</span></p>
-        <!-- edit / delete item buttons-->
-        <div class="btn-container">
-          <button id="${id}-edit" class="edit-btn" type="button">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button id="${id}-delete" class="delete-btn" type="button">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>`;
-
-      // set during testing - quit if false
-      if (this.setItemEvents) {
-        const up = elem.querySelector(".count-up-btn");
-        up.addEventListener("click", this.countUp);
-
-        const down = elem.querySelector(".count-down-btn");
-        down.addEventListener("click", this.countDown);
-
-        const editBtn = elem.querySelector(".edit-btn");
-        editBtn.addEventListener("click", this.editItem);
-
-        const deleteBtn = elem.querySelector(".delete-btn");
-        deleteBtn.addEventListener("click", this.deleteItem);
-      }
-
-      this.list.appendChild(elem);
+      const element = this.createArticle(iItem.item, iItem.count);
+      this.createArticleEvents(element);
+      this.list.appendChild(element);
     } catch (e) {
       this.logError("outputGroceryItem", e);
     }
+  };
+
+  this.createArticle = (id, count) => {
+    const text = this.itemText(id);
+
+    const element = document.createElement("article");
+    const attr = document.createAttribute("id");
+
+    attr.value = `${id}-article`;
+    element.setAttributeNode(attr);
+    element.classList.add("grocery-item");
+
+    element.innerHTML = `
+      <div class="count-container">
+        <button id="${id}-count-up" class="count-up-btn" type="button">
+          <i class="fa fa-plus"></i>
+        </button>
+        <button id="${id}-count-down" class="count-down-btn" type="button">
+          <i class="fa fa-minus"></i>
+        </button>
+      </div>
+      <p class="title">
+        <span class="itemCount" id="${id}No">${count}</span>
+        <span id="${id}">${text}</span>
+      </p>
+      <!-- edit / delete item buttons-->
+      <div class="btn-container">
+        <button id="${id}-save" class="save-btn hide-btn" type="button">
+          <i class="fas fa-save"></i>
+        </button>
+        <button id="${id}-edit" class="edit-btn" type="button">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button id="${id}-delete" class="delete-btn" type="button">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>`;
+
+    return element;
+  };
+
+  this.createArticleEvents = (elem) => {
+    if (!this.setItemEvents) return;
+
+    const up = elem.querySelector(".count-up-btn");
+    up.addEventListener("click", this.countUp);
+
+    const down = elem.querySelector(".count-down-btn");
+    down.addEventListener("click", this.countDown);
+
+    const editBtn = elem.querySelector(".edit-btn");
+    editBtn.addEventListener("click", this.editItem);
+
+    const saveBtn = elem.querySelector(".save-btn");
+    saveBtn.addEventListener("click", this.saveItem);
+
+    const deleteBtn = elem.querySelector(".delete-btn");
+    deleteBtn.addEventListener("click", this.deleteItem);
+  };
+
+  this.findListItem = (findThisItem) => {
+    let foundItem = false;
+    this.itemsArray.find((item, index) => {
+      foundItem = { ...item, index };
+      return item.item === findThisItem;
+    });
+    return foundItem;
   };
 
   /* Set the initial display of items (if any) */
